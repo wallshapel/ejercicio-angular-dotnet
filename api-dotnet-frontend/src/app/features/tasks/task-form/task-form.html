@@ -1,0 +1,23 @@
+<form class="task-form" (ngSubmit)="submit()" [formGroup]="form" novalidate>
+  <mat-form-field appearance="fill" class="task-form__field">
+    <mat-label>Task title</mat-label>
+
+    <input
+      matInput
+      formControlName="title"
+      maxlength="200"
+      autofocus
+      [errorStateMatcher]="errorMatcher"
+    />
+
+    <!-- move counter inside the field to avoid subscript gap -->
+    <span matSuffix class="char-counter">{{ charCount() }}/200</span>
+
+    <mat-error *ngIf="title.hasError('required')">Title is required.</mat-error>
+    <mat-error *ngIf="title.hasError('maxlength')">Max length is 200.</mat-error>
+  </mat-form-field>
+
+  <div class="task-form__action">
+    <button mat-raised-button type="submit" [disabled]="form.invalid">Add</button>
+  </div>
+</form>

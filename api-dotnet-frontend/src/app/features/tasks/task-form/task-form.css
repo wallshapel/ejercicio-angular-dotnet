@@ -1,0 +1,50 @@
+/* Mobile first */
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-form__field {
+  width: 100%;
+}
+
+/* Counter inside the input (suffix) */
+.char-counter {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-right: 6px; /* small spacing from right edge */
+}
+
+.task-form__action button[mat-raised-button] {
+  width: 100%;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.task-form__action button[mat-raised-button][disabled] {
+  background: #9ca3af;
+  color: #ffffff;
+}
+
+/* ≥600px: place in a row and center-align vertically */
+@media (min-width: 600px) {
+  .task-form {
+    flex-direction: row;
+    align-items: center; /* center vs. subscript height differences */
+  }
+  .task-form__field {
+    flex: 1;
+  }
+  .task-form__action button[mat-raised-button] {
+    width: auto;
+    min-width: 120px;
+  }
+}
+
+/* ≥960px small spacing tweak */
+@media (min-width: 960px) {
+  .task-form {
+    gap: 10px;
+  }
+}

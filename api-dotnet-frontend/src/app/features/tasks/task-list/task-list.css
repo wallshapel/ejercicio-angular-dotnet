@@ -1,0 +1,72 @@
+/* Wrapper allows horizontal scroll on very small screens */
+.tasks-list {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 2px;
+}
+
+/* Table base */
+.tasks-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  min-width: 520px; /* keep baseline width so it can scroll on phones */
+}
+
+/* Header */
+.tasks-table th.mat-header-cell {
+  background: #0f172a;
+  color: #ffffff;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Cells */
+.tasks-table td.mat-cell,
+.tasks-table th.mat-header-cell {
+  padding: 10px 12px;
+}
+
+/* Row stripes */
+.tasks-table tr.mat-row:nth-child(even) td {
+  background: #f7fafc;
+}
+
+/* Column text behavior */
+.col-title {
+  word-break: break-word;
+}
+
+.col-created,
+.col-status {
+  white-space: nowrap;
+}
+
+/* Empty state */
+.tasks-empty {
+  margin-top: 10px;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Phones: show only title; keep table scrollable if needed */
+@media (max-width: 599px) {
+  .col-created,
+  .col-status {
+    display: none;
+  }
+  .tasks-table {
+    min-width: 0;
+  }
+}
+
+/* Tablet: show title + status, hide date for compact view */
+@media (min-width: 600px) and (max-width: 959px) {
+  .col-created {
+    display: none;
+  }
+}
+
+/* Desktop: default shows all columns */

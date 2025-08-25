@@ -1,0 +1,23 @@
+<div class="tasks-page">
+  <header class="tasks-header">
+    <h1 class="tasks-title">Tasks</h1>
+  </header>
+
+  <!-- Loading bar -->
+  <mat-progress-bar *ngIf="loading()" mode="indeterminate"></mat-progress-bar>
+
+  <!-- Form section -->
+  <section class="tasks-section">
+    <app-task-form (create)="handleCreate($event)"></app-task-form>
+  </section>
+
+  <!-- Status section -->
+  <section class="tasks-section">
+    <div class="tasks-status tasks-status--error" *ngIf="error() as err">{{ err }}</div>
+  </section>
+
+  <!-- List section -->
+  <section class="tasks-section">
+    <app-task-list [tasks]="tasks()"></app-task-list>
+  </section>
+</div>

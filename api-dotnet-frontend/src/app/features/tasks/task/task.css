@@ -1,0 +1,63 @@
+/* Page container (mobile first) */
+.tasks-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+/* Header */
+.tasks-header {
+  margin-bottom: 8px;
+}
+
+.tasks-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 10 0 8px 0;
+  color: #0f172a;
+}
+
+/* Sections spacing */
+.tasks-section {
+  margin-bottom: 12px;
+}
+
+/* Status messages */
+.tasks-status {
+  font-size: 14px;
+  color: #334155;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.tasks-status--error {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fff1f2;
+}
+
+/* Tablet */
+@media (min-width: 600px) {
+  .tasks-page {
+    padding: 16px;
+  }
+  .tasks-title {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .tasks-section {
+    margin-bottom: 16px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 960px) {
+  .tasks-page {
+    padding: 20px;
+  }
+  .tasks-title {
+    font-size: 24px;
+  }
+}
