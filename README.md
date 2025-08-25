@@ -104,7 +104,7 @@ dotnet run
 ```bash
 cd api-dotnet-frontend
 npm install
-npm start   # abre http://localhost:4200
+ng s -o   # abre http://localhost:4200
 ```
 
 > El token `API_BASE_URL` se provee en `src/app/app.config.ts`. Asegúrate de que apunte a `https://localhost:7095` (o ajusta el puerto si cambiaste el backend).
