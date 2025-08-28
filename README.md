@@ -7,7 +7,7 @@ Este proyecto contiene **dos aplicaciones** que trabajan juntas:
 - **Backend**: API REST en **.NET 8** – carpeta `api-angular-backend`.
 - **Frontend**: SPA en **Angular 20** – carpeta `api-dotnet-frontend`.
 
-La meta fue construir una app de **gestión de tareas** con:
+La meta es construir una app de **gestión de tareas** con:
 
 - **Endpoints** `GET /api/tasks` y `POST /api/tasks`.
 - **EF Core (Code‑First)** con SQL Server y *auto‑migrate* al arrancar.
@@ -19,103 +19,114 @@ La meta fue construir una app de **gestión de tareas** con:
 
 ## 📁 Estructura del repositorio
 ```
-/ejercicio-angular-dotnet
+/angular-dotnet
 ├─ api-angular-backend/        # .NET 8 Web API
 └─ api-dotnet-frontend/        # Angular 20
 ```
 
 ---
 
-## 🛠️ Backend – `api-angular-backend` (.NET 8)
+## 🚀 Ejecución con Docker (recomendada)
 
-### Principales características
-- **CORS** habilitado para `http://localhost:4200` y `https://localhost:4200`.
-- **EF Core SQL Server** (Code‑First) y **`Database.Migrate()`** en `Program.cs` (crea DB/tabl as si no existen).
-- **Patrón Repository + Service**.
-- **DTOs** (`TaskDto`, `CreateTaskDto`).
-- **Mapper** minimalista (`IObjectMapper` + `ReflectionObjectMapper`).
+### Requisitos
+- **Docker** y **Docker Compose** instalados.
 
-### Endpoints
-- `GET /api/tasks` → lista de tareas (más recientes primero).
-- `POST /api/tasks` → crea una tarea y devuelve **201 Created**.
+### Levantar todo el stack
+Desde la **raíz** del repo (`angular-dotnet/`):
 
-### Paquetes NuGet usados
-- `Microsoft.EntityFrameworkCore`
-- `Microsoft.EntityFrameworkCore.SqlServer`
-- `Microsoft.EntityFrameworkCore.Design`
-
-### ⚙️ Configuración requerida
-Crea **`api-angular-backend/appsettings.Development.json`** con tu cadena de conexión (usa tus propios valores entre `<>`):
-
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=<SERVER>,<PORT>;Database=<DATABASE>;User Id=<USER>;Password=<PASSWORD>;Encrypt=True;TrustServerCertificate=True"
-  }
-}
-```
-> Asegúrate de que el motor de **SQL Server** esté ejecutándose (por ejemplo, en `127.0.0.1,1433`). La base `tasks` se crea automáticamente si no existe.
-
-### ▶️ Cómo ejecutar el backend (local)
 ```bash
-cd api-angular-backend
-
-# (Opcional) CLI de EF Core
-dotnet tool update --global dotnet-ef
-
-# Restaurar y compilar
-dotnet restore
-
-# Migración inicial y creación de la base
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-
-# Ejecutar la API
-dotnet run
+# Construir imágenes y levantar en segundo plano
+docker compose up -d
 ```
-- URL de la API (perfil HTTPS por defecto): **`https://localhost:7095`**
 
-> Nota: en el arranque, la app ejecuta `Database.Migrate()` para aplicar migraciones pendientes automáticamente.
+### Servicios y URLs
+- **Backend (.NET)**: `http://localhost:8080`
+  - **Swagger**: `http://localhost:8080/swagger`
+  - **API**: `http://localhost:8080/api/tasks`
+- **Frontend (Angular + Nginx)**: `http://localhost:8081`
+- **SQL Server**: servicio `ejercicio-api-db` en la red de Docker (`Server=ejercicio-api-db,1433`).
+
+> El *compose* ya inyecta `ConnectionStrings__DefaultConnection` en el backend para que resuelva el host del SQL dentro de la red de Docker (`ejercicio-api-db,1433`).
+
+### Probar rápido con Postman
+- **GET** `http://localhost:8080/api/tasks`
+- **POST** `http://localhost:8080/api/tasks`
+  - Body (JSON):
+    ```json
+    { "title": "Buy milk" }
+    ```
+
+---
+
+## 🧭 Cambiar el backend objetivo (⚡ 7095 local ↔ 8080 docker)
+
+Para no recompilar Angular cada vez, el frontend **lee la URL desde un `env.js`** que el contenedor genera al arrancar. Así puedes alternar entre:
+
+- **Backend local (HTTPS)**: `https://localhost:7095`
+- **Backend dockerizado (HTTP)**: `http://localhost:8080`
+
+> **Cómo alternar:** cambia el valor de `API_BASE_URL` en el `docker-compose.yml`
 
 ---
 
 ## 💻 Frontend – `api-dotnet-frontend` (Angular 20)
 
-### Principales características
+### Componentes y UI
 - **TaskComponent** (contenedor) + **TaskFormComponent** (form) + **TaskListComponent** (lista).
-- **HttpClient** inyectado con `API_BASE_URL` (Injection Token) → `https://localhost:7095`.
 - **Angular Material**: `MatFormField`, `MatInput`, `MatButton`, `MatTable`, `MatSnackBar`, `MatProgressBar`.
-- **Diseño mobile‑first** con CSS (solo colores **HEX**):
-  - `<600px`: el botón pasa a segunda fila y la tabla muestra solo la columna **Task**.
-  - `600–959px`: muestra **Task** y **Status**.
-  - `≥960px`: muestra **Task / Created / Status**.
+- **Diseño mobile‑first**: columnas visibles según ancho (`<600`, `600–959`, `≥960`).
 
-### Dependencias relevantes (frontend)
+### Dependencias
 - `@angular/*` (v20)
 - `@angular/material`
 
-### ▶️ Cómo ejecutar el frontend (local)
+### Modo local (Angular dev server)
 ```bash
 cd api-dotnet-frontend
 npm install
-ng s -o   # abre http://localhost:4200
+ng s -o   # http://localhost:4200
 ```
-
-> El token `API_BASE_URL` se provee en `src/app/app.config.ts`. Asegúrate de que apunte a `https://localhost:7095` (o ajusta el puerto si cambiaste el backend).
+> Asegúrate que `window.__env.API_BASE_URL` (fallback o `env.js`) apunte a `https://localhost:7095` si corres backend local.
 
 ---
 
-## 🔒 CORS y puertos
-- **Backend**: `https://localhost:7095` (HTTPS) y `http://localhost:5136` (HTTP). La app usa `UseHttpsRedirection()` ⇒ si llamas por HTTP verás **307 Redirect** a HTTPS.
-- **Frontend**: `http://localhost:4200`.
+## 🛠️ Backend – `api-angular-backend` (.NET 8)
 
-La política CORS permite ambos orígenes (`http://localhost:4200`, `https://localhost:4200`).
+### Endpoints
+- `GET /api/tasks` → lista de tareas (más recientes primero).
+- `POST /api/tasks` → crea una tarea y devuelve **201 Created**.
+
+### EF Core, Migraciones y Auto‑migrate
+- `Database.Migrate()` en `Program.cs` aplica migraciones pendientes al arrancar.
+
+### CORS (modo local)
+Permite `http://localhost:4200` y `https://localhost:4200`.
+
+### Modo local (HTTPS por defecto)
+```bash
+cd api-angular-backend
+# (Opcional) dotnet-ef
+dotnet tool update --global dotnet-ef
+
+dotnet restore
+# Migración inicial (si aplica)
+dotnet ef migrations add InitialCreate
+# Crear/actualizar DB local
+dotnet ef database update
+# Ejecutar API (perfil Development)
+dotnet run
+```
+- URL: `https://localhost:7095`
+
+---
+
+## 🔒 CORS y Puertos (resumen)
+- **Backend dockerizado**: `http://localhost:8080` (HTTP).  
+- **Backend local**: `https://localhost:7095` (HTTPS) y `http://localhost:5136` (HTTP, redirige a HTTPS por defecto).
+- **Frontend dockerizado**: `http://localhost:8081`.  
+- **Frontend local (ng serve)**: `http://localhost:4200`.
+
+**CORS**: asegúrate de incluir los orígenes que uses (`http://localhost:4200`, `http://localhost:8081`).
 
 ---
 
@@ -125,34 +136,19 @@ Controller → Service → Repository → DbContext
            ↘ DTOs/Mapper ↙
 ```
 - **Controller**: `TaskController` (`/api/tasks`).
-- **Service**: `ITaskService` / `TaskService` (aplica reglas de negocio simples y mapea DTOs).
-- **Repository**: `ITaskRepository` / `TaskRepository` (EF Core `AppDbContext`).
+- **Service**: `ITaskService` / `TaskService`.
+- **Repository**: `ITaskRepository` / `TaskRepository`.
 - **DbContext**: `AppDbContext` con entidad `TaskItem` → tabla `Tasks`.
-- **Mapper**: `IObjectMapper` + `ReflectionObjectMapper` (registro **Singleton** en DI).
+- **Mapper**: `IObjectMapper` + `ReflectionObjectMapper` (registrado **Singleton** en DI).
 
 ---
 
-## 🧪 Prueba rápida con curl
-```bash
-# Listar
-curl -k https://localhost:7095/api/tasks
-
-# Crear
-curl -k -X POST https://localhost:7095/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Buy milk"}'
+## 🧪 Prueba rápida (local HTTPS)
+```text
+GET  https://localhost:7095/api/tasks
+POST https://localhost:7095/api/tasks
+Body: { "title": "Buy milk" }
 ```
-
----
-
-## 🧩 Solución de problemas
-- **404 en `/api/tasks`**: verifica que el controlador tenga `[Route("api/tasks")]` y que el puerto coincida con `launchSettings.json`.
-- **307 Redirect desde HTTP**: usa la URL **HTTPS** del backend (`https://localhost:<puerto>`).
-- **CORS**: si ves errores de CORS, confirma que el frontend corre en `http://localhost:4200` y que CORS esté habilitado en `Program.cs`.
-- **Certificado de desarrollo**: si el navegador advierte sobre HTTPS, confía el certificado local de ASP.NET Core.
-- **Conexión a SQL Server**: valida `Server`, `User Id`, `Password` y `TrustServerCertificate=True` en la cadena de conexión.
-
----
 
 ## 🧰 Scripts útiles
 ```bash
@@ -164,8 +160,7 @@ cd api-angular-backend
 
 # Frontend
 cd ../api-dotnet-frontend
-  ng s -o
+ ng s -o
 ```
 
 ---
-

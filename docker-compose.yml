@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  ejercicio-api-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ejercicio-api-db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "TuContrasena123*"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/bin/bash -lc 'echo > /dev/tcp/127.0.0.1/1433'"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    restart: "no"
+
+  ejercicio-api-dotnet:
+    build:
+      context: ./api-angular-backend
+      dockerfile: Dockerfile
+    container_name: ejercicio-api-dotnet
+    depends_on:
+      ejercicio-api-db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DisableHttpsRedirect: "true"
+      ConnectionStrings__DefaultConnection: "Server=ejercicio-api-db,1433;Database=sample;User Id=sa;Password=TuContrasena123*;Encrypt=True;TrustServerCertificate=True"
+      ASPNETCORE_URLS: "http://+:8080"
+    ports:
+      - "8080:8080"
+    restart: "no"
+
+  ejercicio-api-angular:
+    build:
+      context: .
+      dockerfile: api-dotnet-frontend/Dockerfile
+    container_name: ejercicio-api-angular
+    depends_on:
+      - ejercicio-api-dotnet
+    environment:
+      # Docker
+      API_BASE_URL: "http://localhost:8080"
+      # Local
+      # API_BASE_URL: "https://localhost:7095"
+    ports:
+      - "8081:80"
+    restart: "no"
+
+volumes:
+  mssql-data:

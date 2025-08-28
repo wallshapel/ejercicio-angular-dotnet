@@ -1,0 +1,21 @@
+# Carpeta de Git
+.git
+.gitignore
+
+# Archivos temporales
+*.swp
+*.log
+*.user
+
+# Salidas de compilación .NET
+**/bin/
+**/obj/
+
+# Salidas de compilación Angular
+**/node_modules/
+**/dist/
+**/.angular/
+
+# Configuración de IDEs
+.vscode/
+.vs/
